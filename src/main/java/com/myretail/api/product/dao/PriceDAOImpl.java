@@ -21,7 +21,7 @@ import com.myretail.api.product.exception.MyRetailFatalException;
 
 @Repository
 public class PriceDAOImpl implements PriceDAO {
-	private static Logger log = LoggerFactory.getLogger(PriceDAOImpl.class);
+    private static Logger log = LoggerFactory.getLogger(PriceDAOImpl.class);
 
 	@Autowired
 	Session cassandraSession;
