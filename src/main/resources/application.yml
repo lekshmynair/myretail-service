@@ -1,0 +1,25 @@
+spring:
+  server:
+    port: 8080
+    
+redsky:
+  baseUrl: http://redsky.target.com/v2/pdp/tcin/
+  filter: ?excludes=taxonomy,price,promotion,bulk_ship,rating_and_review_reviews,rating_and_review_statistics,question_answer_statistics
+  
+#LOCAL:
+---
+spring:
+  profiles: LOCAL
+cassandra:
+  node: 127.0.0.1
+  port: 9042
+  database-name: myretail
+
+#STAGE:
+---
+spring:
+  profiles: STAGE
+cassandra:
+  node: 54.208.145.71
+  port: 9042
+  database-name: myretail

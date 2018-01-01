@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'myretail-service'
+    version =  '0.0.1'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.springframework:spring-web")
+    compile("org.springframework.retry:spring-retry:1.2.2.RELEASE")
+    compile("org.springframework:spring-aspects")
+    compile("com.fasterxml.jackson.core:jackson-databind:2.6.0")
+    compile("com.datastax.cassandra:cassandra-driver-core:3.3.0")
+    compile("com.datastax.cassandra:cassandra-driver-mapping:3.3.0")
+    compile("com.datastax.cassandra:cassandra-driver-extras:3.3.0")
+    compile("com.google.guava:guava:23.0")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
