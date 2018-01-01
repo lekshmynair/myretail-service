@@ -31,8 +31,8 @@ public class PriceDAOImpl implements PriceDAO {
 	 */
 	@Override
 	public Optional<ProductPrice> getPriceByProductId(Product prod) throws MyRetailFatalException {
-
 		Optional<ProductPrice> price = Optional.empty();
+		
 		try {
 			ResultSet results = cassandraSession.execute("SELECT price_amount from price where product_id = ? ",
 			        prod.getId().longValue());
@@ -48,14 +48,13 @@ public class PriceDAOImpl implements PriceDAO {
 					log.info("PriceDAOImpl --> Price not found for the product: " + prod.getId().longValue());
 				}
 			} else {
-				log.info("PriceDAOImpl --> Price not found for the product: " + prod.getId().longValue());
+                log.info("PriceDAOImpl --> Price not found for the product: " + prod.getId().longValue());
 			}
 		} catch (Exception e) {
 			log.error("PriceDAOImpl --> Error retrieving price for the product: " + prod.getId().longValue());
 			throw new MyRetailFatalException("Price read error", e);
 		}
 		return price;
-
 	}
 
 	/**
