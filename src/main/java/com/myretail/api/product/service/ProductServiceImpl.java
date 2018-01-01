@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.myretail.api.product.cache.ProductCache;
 import com.myretail.api.product.dao.PriceDAO;
-import com.myretail.api.product.dao.ProductDAO;
 import com.myretail.api.product.domain.Product;
 import com.myretail.api.product.domain.ProductPrice;
 import com.myretail.api.product.exception.MyRetailFatalException;
@@ -20,12 +19,12 @@ import com.myretail.api.product.exception.MyRetailFatalException;
  * ProductRestServiceImpl implements ProductService Interface
  */
 @Service
-public class ProductRestServiceImpl implements ProductService {
+public class ProductServiceImpl implements ProductService {
 
 	private static Logger log = LoggerFactory.getLogger(ProductService.class);
 
-	@Autowired
-	ProductDAO prodDAO;
+	/*@Autowired
+	ProductDAO prodDAO;*/
 
 	@Autowired
 	PriceDAO priceDAO;
