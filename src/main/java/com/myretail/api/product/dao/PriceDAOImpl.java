@@ -22,7 +22,6 @@ import com.myretail.api.product.exception.MyRetailFatalException;
 @Repository
 public class PriceDAOImpl implements PriceDAO {
     private static Logger log = LoggerFactory.getLogger(PriceDAOImpl.class);
-
     @Autowired
     Session cassandraSession;
 
@@ -32,7 +31,6 @@ public class PriceDAOImpl implements PriceDAO {
     @Override
     public Optional<ProductPrice> getPriceByProductId(Product prod) throws MyRetailFatalException {
         Optional<ProductPrice> price = Optional.empty();
-
         try {
             ResultSet results = cassandraSession.execute("SELECT price_amount from price where product_id = ? ",
                     prod.getId().longValue());
@@ -42,12 +40,10 @@ public class PriceDAOImpl implements PriceDAO {
                     ProductPrice prodPrice = mapRow(row);
                     prodPrice.setProduct(prod);
                     price = Optional.of(prodPrice);
-                    log.info("PriceDAOImpl --> Price retreived for the product: " + prod.getId().longValue() + " = "
-                            + prodPrice.getAmount().doubleValue());
-                } else {
+                } else { // price do not exist for the product
                     log.info("PriceDAOImpl --> Price not found for the product: " + prod.getId().longValue());
                 }
-            } else {
+            } else { // no price exist for the product
                 log.info("PriceDAOImpl --> Price not found for the product: " + prod.getId().longValue());
             }
         } catch (Exception e) {
@@ -62,7 +58,6 @@ public class PriceDAOImpl implements PriceDAO {
      */
     @Override
     public void updateProductPrice(ProductPrice price) throws MyRetailFatalException {
-
         try {
             cassandraSession.execute("insert into price(product_id, price_amount) values(?, ?)",
                     price.getProduct().getId(), price.getAmount().doubleValue());
@@ -76,10 +71,8 @@ public class PriceDAOImpl implements PriceDAO {
     }
 
     private ProductPrice mapRow(Row row) {
-
         ProductPrice prodPrice = new ProductPrice();
         prodPrice.setAmount(Double.valueOf(row.getDouble("price_amount")));
-
         return prodPrice;
     }
 }
