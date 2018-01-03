@@ -43,6 +43,10 @@ To run the code, execute the following command from the project root:
 java -Dspring.profiles.active=LOCAL -Djava.security.egd=file:/dev/./urandom -jar build/libs/myretail-service-0.0.1.jar
 ```
 Step 4: Run as a docker container
+From the project root, run the following command to build docker image named 'myretail-service'
+```
+docker build -t myretail-service .
+```
 
  
   
