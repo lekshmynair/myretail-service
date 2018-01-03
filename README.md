@@ -5,16 +5,11 @@ myretail-service aggregates product information from Target's RedSky API along w
  ## Tech Stack
    - Java 1.8 
    - SpringBoot
-  
-    Cassandra
-  
-    Google Gauava - for caching product details read from RedSky API
-  
-    Gradle
-  
-    Sonarqube
-  
-    Docker
+   - Cassandra
+   - Google Gauava - for caching product details read from RedSky API
+   - Gradle
+   - Sonarqube
+   - Docker
  
  ## Running the application
   
