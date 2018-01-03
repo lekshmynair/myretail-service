@@ -18,10 +18,23 @@ Step 1: Execute the following command to clone the repo
 git clone  git@github.com:lekshmynair/myretail-service.git
 ```           
 Step 2: Setup Cassandra environment
-          
+
         If you don't have Cassandra installed, please install it locally.
-        Update 'application.yml' to point to the cluster. 
+        ###Update application.yml to point to the cluster.
         
+        Run the following CQL script to create the keyspace and tables.
+```
+           create keyspace myretail with replication = {'class':'SimpleStrategy','replication_factor' : 1};
+           use myretail;
+           create table price(
+               product_id bigint PRIMARY KEY,
+               price_amount double
+               );
+           insert into price (product_id, price_amount) values(15117729,12.99);
+           insert into price (product_id, price_amount) values(16696652,22.55);
+           insert into price (product_id, price_amount) values(13860428,65.01);
+           
+```       
         
  
   
