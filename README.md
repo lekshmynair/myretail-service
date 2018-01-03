@@ -43,12 +43,56 @@ To run the code, execute the following command from the project root:
 java -Dspring.profiles.active=LOCAL -Djava.security.egd=file:/dev/./urandom -jar build/libs/myretail-service-0.0.1.jar
 ```
 Step 4: Run as a docker container
+
 From the project root, run the following command to build docker image named 'myretail-service'
 ```
 docker build -t myretail-service .
 ```
+Create a container instance exposing port 8080 using the docker image 'myretail-service':
+Note: environment variable SPRING_PROFILES_ACTIVE is set to use STAGE profile from the application.yml
+```
+docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=STAGE myretail-service:latest
+```
+To figure out the container ID for the instance, use 'docker ps' command. 
+With the container ID, container logs can be viewed using the following command:
+```
+docker logs <containerID>
+```
 
- 
+## Testing the REST endpoints
+1. Get Product details
+To view product details, for example, for ProductID: 16696652, use the following URL with HTTP GET method:
+```
+localhost:8080/products/v1/16696652  
+```
+which returns the following repsonse:
+```
+{
+  "id" : 16696652,
+  "name" : "Beats Solo 2 Wireless Headphone Black",
+  "current_price" : {
+    "value" : 55.55,
+    "currency_code" : "USD"
+  }
+}
+```
+2. Update Price:
+To update price of a product, for example, for updating price for productID 16696652 to $99.99, use the following URL with HTTP PUT method:
+```
+localhost:8080/products/v1/16696652/price
+request body: {"currencyCode":"USD","value":99.99}
+```
+if the update was successful, it will return the following response:
+``
+{
+  "id" : 16696652,
+  "name" : "Beats Solo 2 Wireless Headphone Black",
+  "current_price" : {
+    "value" : 99.99,
+    "currency_code" : "USD"
+  }
+}
+```
   
 
 
