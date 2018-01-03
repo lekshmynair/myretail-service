@@ -20,7 +20,7 @@ git clone  git@github.com:lekshmynair/myretail-service.git
 Step 2: Setup Cassandra environment
 
         If you don't have Cassandra installed, please install it locally.
-        ###Update application.yml to point to the cluster.
+        Update application.yml to point to the cluster.
         
         Run the following CQL script to create the keyspace and tables.
 ```
@@ -35,7 +35,16 @@ Step 2: Setup Cassandra environment
            insert into price (product_id, price_amount) values(13860428,65.01);
            
 ```       
-        
+Step 3: Run the Code
+
+        From the project root, run the following command to build the code.
+```
+      Gradle clean build
+```
+      To run the code, execute the following command:
+```
+      java -Dspring.profiles.active=LOCAL -Djava.security.egd=file:/dev/./urandom -jar build/libs/myretail-service-0.0.1.jar
+```
  
   
 
