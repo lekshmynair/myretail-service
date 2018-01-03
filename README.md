@@ -19,7 +19,9 @@ git clone  git@github.com:lekshmynair/myretail-service.git
 ```   
 
 Step 2: Setup Cassandra environment
+
 If you don't have Cassandra installed, please install it locally.  Update application.yml to point to the cluster.
+
 Run the following CQL script to create the keyspace and tables.
 ```
 create keyspace myretail with replication = {'class':'SimpleStrategy','replication_factor' : 1};
@@ -49,10 +51,12 @@ From the project root, run the following command to build docker image named 'my
 docker build -t myretail-service .
 ```
 Create a container instance exposing port 8080 using the docker image 'myretail-service':
-Note: environment variable SPRING_PROFILES_ACTIVE is set to use STAGE profile from the application.yml
+
 ```
 docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=STAGE myretail-service:latest
 ```
+Note: environment variable SPRING_PROFILES_ACTIVE is set to use STAGE profile from the application.yml
+
 To figure out the container ID for the instance, use 'docker ps' command. 
 With the container ID, container logs can be viewed using the following command:
 ```
