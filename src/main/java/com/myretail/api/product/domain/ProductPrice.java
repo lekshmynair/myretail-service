@@ -15,7 +15,7 @@ public class ProductPrice {
         super();
         this.currencyCode = "USD";
         this.amount = null;
-        this.product = null;
+        this.product = new Product();
     }
 
     public ProductPrice(Double amount, String currencyCode) {

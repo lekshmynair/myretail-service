@@ -50,7 +50,6 @@ public class PriceDAOTest {
         MockitoAnnotations.initMocks(this);
         product = Optional.of(new Product(productID, prodName));
         productPrice = Optional.of(new ProductPrice(amount, currencyCode));
-
     }
 
     @Test
@@ -58,13 +57,6 @@ public class PriceDAOTest {
         Mockito.when(session.execute(any(Statement.class))).thenReturn(null);
         productPrice = priceDAO.getPriceByProductId(product.get());
         assertTrue(!productPrice.isPresent());
-    }
-
-    @Test(expected = MyRetailFatalException.class)
-    public void testPriceReadException() throws MyRetailFatalException {
-        Mockito.when(session.execute(any(Statement.class))).thenThrow(new Exception());
-        productPrice = priceDAO.getPriceByProductId(product.get());
-        assertTrue(false);
     }
 
 }

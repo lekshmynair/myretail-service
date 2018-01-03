@@ -25,47 +25,37 @@ public class PriceDAOImpl implements PriceDAO {
     @Autowired
     Session cassandraSession;
 
-    /**
-     * Read price of a product from data store
-     */
+    // Read price of a product from data store
     @Override
     public Optional<ProductPrice> getPriceByProductId(Product prod) throws MyRetailFatalException {
         Optional<ProductPrice> price = Optional.empty();
         try {
             ResultSet results = cassandraSession.execute("SELECT price_amount from price where product_id = ? ",
-                    prod.getId().longValue());
+                    prod.getId());
             if (results != null) {
                 Row row = results.one();
                 if (row != null) {
                     ProductPrice prodPrice = mapRow(row);
                     prodPrice.setProduct(prod);
                     price = Optional.of(prodPrice);
-                } else { // price do not exist for the product
-                    log.info("PriceDAOImpl --> Price not found for the product: " + prod.getId().longValue());
                 }
-            } else { // no price exist for the product
-                log.info("PriceDAOImpl --> Price not found for the product: " + prod.getId().longValue());
             }
         } catch (Exception e) {
-            log.error("PriceDAOImpl --> Error retrieving price for the product: " + prod.getId().longValue());
+            log.error("Error retrieving price for the product:{}. Error: {} ", prod.getId(), e);
             throw new MyRetailFatalException("Price read error", e);
         }
         return price;
     }
 
-    /**
-     * updates price of a product in data store
-     */
+    // updates price of a product in data store
     @Override
     public void updateProductPrice(ProductPrice price) throws MyRetailFatalException {
         try {
             cassandraSession.execute("insert into price(product_id, price_amount) values(?, ?)",
-                    price.getProduct().getId(), price.getAmount().doubleValue());
-            log.info("PriceDAOImpl --> Price successfully updated for product: "
-                    + price.getProduct().getId().longValue() + " with " + price.getAmount().doubleValue());
+                    price.getProduct().getId(), price.getAmount());
         } catch (Exception e) {
-            log.error("PriceDAOImpl --> Error updating price for the product: " + price.getProduct().getId().longValue()
-                    + " with " + price.getAmount().doubleValue());
+            log.error("PriceDAOImpl --> Error updating price for the productID: {} with amount: {}. Error: {}",
+                    price.getProduct().getId(), price.getAmount(),e);
             throw new MyRetailFatalException("Price update error", e);
         }
     }

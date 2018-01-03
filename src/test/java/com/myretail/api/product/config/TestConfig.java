@@ -13,7 +13,7 @@ import com.myretail.api.product.dao.ProductDAOImpl;
 import com.myretail.api.product.service.ProductService;
 import com.myretail.api.product.service.ProductServiceImpl;
 
-//@Configuration
+@Configuration
 public class TestConfig {
 	
 	@Bean

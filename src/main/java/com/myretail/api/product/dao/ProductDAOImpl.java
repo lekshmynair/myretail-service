@@ -31,16 +31,14 @@ import com.myretail.api.product.exception.MyRetailFatalException;
 public class ProductDAOImpl implements ProductDAO {
     private static Logger log = LoggerFactory.getLogger(ProductDAOImpl.class);
     private static final int NOTFOUND = 404;
+    
     @Value("${redsky.baseUrl}")
     private String baseURL;
 
     @Value("${redsky.filter}")
     private String urlTrail;
-
-    /**
-     * Method to read product and details from Target red sky API and price info
-     * from data store
-     */
+ 
+    // Method to read product and details from Target red sky API and price info from data store
     @Retryable(value = MyRetailFatalException.class, backoff = @Backoff(delay = 500))
     @Override
     public Optional<Product> findProductDetails(Long id) throws MyRetailFatalException {
@@ -68,17 +66,17 @@ public class ProductDAOImpl implements ProductDAO {
         } catch (RestClientResponseException rre) {
             if (rre.getRawStatusCode() == NOTFOUND) {
                 if (rre.getResponseBodyAsString() != null) { // product not found
-                    log.info("ProductDAOImpl --> redsky api - product not found");
+                    log.info("redsky api - product not found");
                 } else { // invalid URL
-                    log.info("ProductDAOImpl --> redsky api no response body, invalid URL");
+                    log.info("redsky api- no response body, invalid URL");
                     throw new MyRetailFatalException("Error getting product details", rre);
                 }
             } else {
-                log.error("ProductDAOImpl --> Error getting product details, ", rre);
+                log.error("Error getting product details for ID");
                 throw new MyRetailFatalException("Error getting product details", rre);
             }
         } catch (Exception e) {
-            log.error("ProductDAOImpl --> error calling red sky url", e);
+            log.error("Error calling red sky url", e);
             throw new MyRetailFatalException("Error calling red sky url", e);
         }
         return prodName;
@@ -87,9 +85,9 @@ public class ProductDAOImpl implements ProductDAO {
     /* method to get the product url reading properties */
 
     private String getProductURL(long id) {
-        StringBuffer prodURL = new StringBuffer();
+        StringBuilder prodURL = new StringBuilder();
         prodURL.append(baseURL).append(id).append(urlTrail);
-        log.info("ProductDAOImpl --> Prod URL: " + prodURL.toString());
+        log.info("ProductDAOImpl --> Prod URL: {}", prodURL.toString());
         return prodURL.toString().trim();
     }
 

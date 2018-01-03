@@ -29,9 +29,8 @@ public class CassandraDBConfig {
 
     @Bean
     public Session cassandraSession() {
-        log.info("node = " + node + ", port = " + port + ", dbName = " + dbName);
+        log.info("node = {} , port = {}, dbName = {}",node, port, dbName);
         Cluster cluster = Cluster.builder().addContactPoint(node).withPort(port).build();
-        Session session = cluster.connect(dbName);
-        return session;
+        return cluster.connect(dbName);
     }
 }

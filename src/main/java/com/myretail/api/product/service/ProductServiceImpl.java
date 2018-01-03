@@ -50,10 +50,10 @@ public class ProductServiceImpl implements ProductService {
                     product.get().setProdPrice(null);
                 }
             } else { // product not found
-                log.info("ProductServiceImpl --> Product not found for product ID : " + id);
+                log.info("Product not found for product ID : {} ", id);
             }
         } catch (MyRetailFatalException e) {
-            log.error("ProductRestServiceImpl --> Error reading Product details for product ID : " + id, e);
+            log.error("Error reading Product details for product ID : {}",id);
             throw new MyRetailFatalException("Error getting product details", e);
         }
         return product;

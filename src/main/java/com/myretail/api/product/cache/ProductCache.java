@@ -32,19 +32,16 @@ public class ProductCache {
                 .build(new CacheLoader<Long, Optional<Product>>() {
                     @Override
                     public Optional<Product> load(Long id) throws Exception {
-                        Optional<Product> prod = Optional.empty();
-                        prod = prodDAO.findProductDetails(id);
-                        return prod;
+                        return prodDAO.findProductDetails(id);
                     }
                 });
     }
 
     public Optional<Product> getProductDetails(Long id) throws MyRetailFatalException {
         try {
-            log.info("ProductCache --> reading prod info, {} ", prodCache.stats().toString());
             return prodCache.get(id);
         } catch (ExecutionException ee) {
-            log.error("ProductCache --> Error calling ProductCache");
+            log.error("Error calling ProductCache");
             throw new MyRetailFatalException("Product Cache Exception", ee);
         }
     }

@@ -23,6 +23,7 @@ import com.myretail.api.product.domain.ProductPrice;
 import com.myretail.api.product.dto.MyRetailResponse400;
 import com.myretail.api.product.dto.MyRetailResponse404;
 import com.myretail.api.product.dto.MyRetailResponse500;
+import com.myretail.api.product.exception.MyRetailFatalException;
 import com.myretail.api.product.service.ProductService;
 
 /**
@@ -37,109 +38,134 @@ public class ProductController {
     @Autowired
     ProductService prodService;
 
-    /*
-     * path : /products/v1/id method : getProductDetails response : Json string with
-     * product id, product name, price amount, currency code
+    /**
+     * Returns product details and price info associated with product ID
+     * 
+     * @param id
+     *            ProductID numeric
+     * @return Product and price info if the product is valid; otherwise, returns
+     *         error message.
      */
-
     @RequestMapping(value = "/products/v1/{id}", method = RequestMethod.GET)
     @ResponseBody
     public Object getProductDetails(@PathVariable("id") String id) {
         ResponseEntity<Object> responseEntity = null;
+        Long prodId = null;
         try {
-            Long prodId = new Long(id);
+            prodId = validateProductID(id);
+        } catch (MyRetailFatalException me) {
+            log.warn("Bad request for productID: {}", id);
+            return new ResponseEntity<Object>(new MyRetailResponse400(), HttpStatus.BAD_REQUEST);
+        }
+        try {
             Optional<Product> product = prodService.getProductDetails(prodId);
             if (product.isPresent()) {
-                log.info("ProductController --> getProductDetails - read product info successfully");
                 String jsonResult = createJSONObject(product.get());
                 responseEntity = new ResponseEntity<Object>(jsonResult, HttpStatus.OK);
             } else { // product not found
                 responseEntity = new ResponseEntity<Object>(new MyRetailResponse404(), HttpStatus.NOT_FOUND);
+                log.warn("Product ID {} not found - red sky API", id);
             }
-        } catch (NumberFormatException ne) {
-            responseEntity = new ResponseEntity<Object>(new MyRetailResponse400(), HttpStatus.BAD_REQUEST);
-            log.error("ProductController --> Product ID " + id + " not numeric");
-        } catch (Exception e) {
+        }catch (MyRetailFatalException e) {
             responseEntity = new ResponseEntity<Object>(new MyRetailResponse500(), HttpStatus.INTERNAL_SERVER_ERROR);
-            log.error("ProductController --> Error getting product details for product ID: " + id);
+            log.error("Error getting product details for product ID: {}", id);
         }
         return responseEntity;
     }
 
-    /*
-     * path : /products/v1/id/price method : getProductDetails request : JSON string
-     * with price & currencyCode price = {"value":99.99, "currency_code:"USD"}
-     * response: JSON string with product id, product name, price amount(new),
-     * currency code
+    /**
+     * Returns updated product price after the price is updated in data store
+     * 
+     * @param id
+     *            productID for the product to be udpated
+     * @param input
+     *            JSON containing price amount and currency code
+     * @return JSON containing product id, product name, price amount(new), currency
+     *         code
      */
     @RequestMapping(value = "/products/v1/{id}/price", method = RequestMethod.PUT)
     @ResponseBody
     public Object updatePrice(@PathVariable("id") String id, @RequestBody String input) {
         ResponseEntity<Object> responseEntity = null;
+        Optional<ProductPrice> prodPrice;
+        Long prodId = null;
         try {
-            log.info("inside update");
-            long prodId = Long.parseLong(id);
-            log.info("prod id :" + prodId);
-            Optional<ProductPrice> prodPrice = parseRequestPrice(input);
-            if (prodPrice.isPresent()) { /* check if product exists in red sky */
-                Optional<Product> product = prodService.getProductDetails(prodId);
-                if (product.isPresent()) { /* update price if the product exists in red sky */
-                    prodPrice.get().setProduct(product.get());
-                    prodService.updatePrice(prodPrice.get());
-                    log.info("ProductController-->  updatePrice, Price updated successfully");
-                    /* After price is updated successfully, set the price of the product to new price */
-                    product.get().setProdPrice(prodPrice.get());
-                    String jsonResult = createJSONObject(product.get());
-                    responseEntity = new ResponseEntity<Object>(jsonResult, HttpStatus.OK);
-                } else { // product not found
-                    responseEntity = new ResponseEntity<Object>(new MyRetailResponse404(), HttpStatus.NOT_FOUND);
-                }
-            } else {
-                responseEntity = new ResponseEntity<Object>(new MyRetailResponse400(), HttpStatus.BAD_REQUEST);
+            prodId = validateProductID(id);
+            prodPrice = validatePriceRequestBody(input);
+        } catch (MyRetailFatalException me) {
+            log.warn("Bad request for productID: {}", id);
+            return new ResponseEntity<Object>(new MyRetailResponse400(), HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            Optional<Product> product = prodService.getProductDetails(prodId);
+            if (product.isPresent()) { /* update price if the product exists in red sky */
+                prodPrice.get().setProduct(product.get());
+                prodService.updatePrice(prodPrice.get());
+                // After price is updated successfully, set the price of the product to new
+                // price
+                product.get().setProdPrice(prodPrice.get());
+                String jsonResult = createJSONObject(product.get());
+                log.info("Returning price for product: {}", product.get());
+                responseEntity = new ResponseEntity<Object>(jsonResult, HttpStatus.OK);
+            } else { // product not found
+                log.warn("Product not found for id: {}", id);
+                responseEntity = new ResponseEntity<Object>(new MyRetailResponse404(), HttpStatus.NOT_FOUND);
             }
-        } catch (NumberFormatException | IOException ex) {
-            responseEntity = new ResponseEntity<Object>(new MyRetailResponse400(), HttpStatus.BAD_REQUEST);
-            log.error("ProductController-->  updatePrice, Price update error for product ID: " + id + ex.getMessage());
-        } catch (Exception e) {
-            log.error("ProductController-->  updatePrice, Price update error for product ID: " + id + e.getMessage());
+        } catch (MyRetailFatalException me) {
+            log.error("updatePrice, Price update error for product ID: {}", id);
             responseEntity = new ResponseEntity<Object>(new MyRetailResponse500(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return responseEntity;
     }
 
-    private Optional<ProductPrice> parseRequestPrice(String input) throws Exception {
-        Optional<ProductPrice> prodPrice = Optional.empty();
-        CurrentPrice currPrice = null;
-        ObjectMapper mapper = new ObjectMapper();
+    private Long validateProductID(String id) throws MyRetailFatalException {
+        Long productID = null;
         try {
-            currPrice = mapper.readValue(input, CurrentPrice.class);
-        } catch (Exception e) {
-            log.error("ProductController--> error parsing price request body:" + input + ", " + e.getMessage());
+            productID = Long.valueOf(id);
+        } catch (NumberFormatException ne) {
+            throw new MyRetailFatalException("Product ID not numeric", ne);
         }
-        prodPrice = Optional.of(new ProductPrice(currPrice.getValue(), currPrice.getCurrencyCode()));
+        return productID;
+    }
+
+    private Optional<ProductPrice> validatePriceRequestBody(String input) throws MyRetailFatalException {
+        Optional<ProductPrice> prodPrice = Optional.empty();
+        try {
+            CurrentPrice currPrice = new ObjectMapper().readValue(input, CurrentPrice.class);
+            prodPrice = Optional.of(new ProductPrice(currPrice.getValue(), currPrice.getCurrencyCode()));
+        } catch (IOException ie) {
+            log.error("Error parsing price request body: {}", input);
+            throw new MyRetailFatalException("Error parsing price request", ie);
+        }
         return prodPrice;
     }
 
     /*
-     * This method creates the response JSON string with all needed fields :  
-     * product ID, product Name, current Price Value, currency code
+     * This method creates the response JSON string with all needed fields :
+     * productID, product Name, current Price Value, currency code
      */
-    private String createJSONObject(Product prod) throws IOException {
+    private String createJSONObject(Product prod) throws MyRetailFatalException {
         String result = null;
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode root = mapper.createObjectNode();
-        root.put("id", prod.getId());
-        root.put("name", prod.getName());
-        if (prod.getProdPrice() != null) {
-            ObjectNode priceNode = mapper.createObjectNode();
-            priceNode.put("value", prod.getProdPrice().getAmount());
-            priceNode.put("currency_code", prod.getProdPrice().getCurrencyCode());
-            root.set("current_price", priceNode);
-        } else {
-            root.put("current_price", "null");
+        String nullValue = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode root = mapper.createObjectNode();
+            root.put("id", prod.getId());
+            root.put("name", prod.getName());
+            if (prod.getProdPrice() != null) {
+                ObjectNode priceNode = mapper.createObjectNode();
+                priceNode.put("value", prod.getProdPrice().getAmount());
+                priceNode.put("currency_code", prod.getProdPrice().getCurrencyCode());
+                root.set("current_price", priceNode);
+            } else {
+                root.put("current_price", nullValue);
+            }
+            result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+            return result;
+        } catch (IOException ie) {
+            log.error("Error creating JSON response");
+            throw new MyRetailFatalException("Error creating JSON response", ie);
         }
-        result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
-        //log.info("result:" + result);
-        return result;
     }
 }

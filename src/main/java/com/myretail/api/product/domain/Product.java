@@ -11,6 +11,9 @@ public class Product {
     String name; // product name
     ProductPrice prodPrice; // price
 
+    public Product() {
+        super();
+    }
     public Product(Long id, String name) {
         this.id = id;
         this.name = name;
