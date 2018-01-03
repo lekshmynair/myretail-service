@@ -33,18 +33,19 @@ Step 2: Setup Cassandra environment
            insert into price (product_id, price_amount) values(15117729,12.99);
            insert into price (product_id, price_amount) values(16696652,22.55);
            insert into price (product_id, price_amount) values(13860428,65.01);
-           
 ```       
 Step 3: Run the Code
 
-        From the project root, run the following command to build the code.
+      From the project root, run the following command to build the code.
 ```
       Gradle clean build
 ```
-      To run the code, execute the following command:
+      To run the code, execute the following command from the project root:
 ```
       java -Dspring.profiles.active=LOCAL -Djava.security.egd=file:/dev/./urandom -jar build/libs/myretail-service-0.0.1.jar
 ```
+Step 4: Run as a docker container
+
  
   
 
