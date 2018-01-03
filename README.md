@@ -65,6 +65,7 @@ docker logs <containerID>
 
 ## Testing the REST endpoints
 1. Get Product details
+
 To view product details, for example, for ProductID: 16696652, use the following URL with HTTP GET method:
 ```
 localhost:8080/products/v1/16696652  
@@ -80,14 +81,15 @@ which returns the following repsonse:
   }
 }
 ```
-2. Update Price:
+2. Update Price
+
 To update price of a product, for example, for updating price for productID 16696652 to $99.99, use the following URL with HTTP PUT method:
 ```
 localhost:8080/products/v1/16696652/price
 request body: {"currencyCode":"USD","value":99.99}
 ```
 if the update was successful, it will return the following response:
-``
+```
 {
   "id" : 16696652,
   "name" : "Beats Solo 2 Wireless Headphone Black",
